@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +10,7 @@ using UnityEngine.UI;
 public class RecordingSystem : MonoBehaviour
 {
     public GameObject RecordingButton;
-    public GameObject InputField;
+    public GameObject inputField;
     public GameObject loadButton;
     public GameObject playButton;
 
@@ -61,20 +62,33 @@ public class RecordingSystem : MonoBehaviour
 
     public void StartRecording()
     {
-        //string name = InputField.GetComponent<InputField>().text;
+        TMP_InputField input = inputField.GetComponent<TMP_InputField>();
+        string name = input.text;
 
-        //if (name == "") return;
+        if (name == "") return;
 
         isRecording = true;
 
         CurrentRecording = new Recording();
+        CurrentRecording.name = name;
+
+        foreach (Recording r in recordings)
+        {
+            if (name == r.name)
+            {
+                recordings.Remove(r);
+                break;
+            }
+        }
+
         foreach (GameObject go in gameObjects)
         {
             State state = new State();
             state.pos = go.transform.position;
             state.enabled = go.activeSelf;
-            //state.color = go.GetComponent<Color>();
-            CurrentRecording.name = "";
+            //if (go.GetComponent<Image>() != null) {
+            //    state.color = go.GetComponent<Image>().GetComponent<Color>();
+            //}
             CurrentRecording.InitialStates.Add(state);
         }
         CurrentRecording.times.Add(0f);
@@ -95,7 +109,30 @@ public class RecordingSystem : MonoBehaviour
 
     public void PlayRecording()
     {
-        Recording r = recordings.Last();
+        if (recordings.Count == 0) { return; }
+
+        TMP_InputField input = inputField.GetComponent<TMP_InputField>();
+        string name = input.text;
+
+        Recording r = null;
+
+        if (name == "")
+        {
+            r = recordings.Last();
+        }
+        else
+        {
+            foreach (Recording temp in recordings)
+            {
+                if (name == temp.name)
+                {
+                    r = temp;
+                    break;
+                }
+            }
+        }
+        
+
         if (r == null) return;
 
         int i = 0;
@@ -104,6 +141,10 @@ public class RecordingSystem : MonoBehaviour
             go.transform.position = r.InitialStates[i].pos;
             go.SetActive(r.InitialStates[i].enabled);
 
+            //if (go.GetComponent<Image>() != null)
+            //{
+            //    go.GetComponent<Image>().GetComponent<Color>().Equals(r.InitialStates[i].color);
+            //}
             i++;
         }
         StartCoroutine(ReplayActions(r, 1));
@@ -112,7 +153,7 @@ public class RecordingSystem : MonoBehaviour
     IEnumerator ReplayActions(Recording r, int step)
     {
         yield return new WaitForSeconds(r.times[step] - r.times[step-1]);
-        Debug.Log(r.times[step] - r.times[step - 1]);
+        //Debug.Log(r.times[step] - r.times[step - 1]);
         if (step < r.ActionsStates.Count())
         {
             int i = 0;
@@ -121,6 +162,10 @@ public class RecordingSystem : MonoBehaviour
                 go.transform.position = r.ActionsStates[step][i].pos;
                 go.SetActive(r.ActionsStates[step][i].enabled);
 
+                //if (go.GetComponent<Image>() != null)
+                //{
+                //    go.GetComponent<Image>().GetComponent<Color>().Equals(r.ActionsStates[step][i].color);
+                //}
                 i++;
             }
             StartCoroutine(ReplayActions(r, ++step));
@@ -155,10 +200,10 @@ public class RecordingSystem : MonoBehaviour
 
     IEnumerator Timing()
     {
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
         if (isRecording)
         {
-            CurrentRecording.currentTime += 0.2f;
+            CurrentRecording.currentTime += 0.1f;
             StartCoroutine(Timing());
         }
     }

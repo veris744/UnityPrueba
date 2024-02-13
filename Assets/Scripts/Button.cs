@@ -74,6 +74,9 @@ public class Button : MonoBehaviour, IPointerClickHandler
             color++;
             if (color > 2) color = 0;
             SetColor();
+
+            if (RecordingSystem.Instance.isRecording)
+                RecordingSystem.Instance.RecordAction();
         }
     }
 
