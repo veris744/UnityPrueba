@@ -3881,9 +3881,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RecordingButton: {fileID: 2012985902}
-  InputField: {fileID: 1451851431}
+  inputField: {fileID: 1451851431}
   loadButton: {fileID: 0}
   playButton: {fileID: 0}
+  isRecording: 0
   gameObjects: []
 --- !u!4 &1615494828
 Transform:
